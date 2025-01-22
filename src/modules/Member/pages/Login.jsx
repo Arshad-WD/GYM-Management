@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../../services/firebase.js";
+import { login } from "../../../services/authServices.js";
 
 const MemberLogin = () => {
   const [email, setEmail] = useState("");
@@ -9,8 +10,12 @@ const MemberLogin = () => {
 
   const handleLogin = async () => {
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = login(email, password, "member");
+     // if(userCredential.role == "member") {
+     if(userCredential){
       window.location.href = "/member/dashboard"; // Redirect to Member Dashboard
+    }else{
+      throw new Error("Unauthorized role: Expected member, found " + userCredential.role);}
     } catch (err) {
       setError(err.message || "Invalid login credentials");
     }

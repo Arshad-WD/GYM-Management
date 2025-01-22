@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { db } from "../../../services/firebase";
-import { collection, getDocs, } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 
-const PostsSection = ({ handleDeletePost }) => {
+function Posts() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -49,12 +49,6 @@ const PostsSection = ({ handleDeletePost }) => {
                 Published on:{" "}
                 {new Date(post.createdAt?.seconds * 1000).toLocaleDateString()}
               </p>
-              <button
-                onClick={() => handleDeletePost(post.id)}
-                className="bg-red-500 text-white py-1 px-3 rounded mt-2 hover:bg-red-600"
-              >
-                Delete Post
-              </button>
             </div>
           ))
         ) : (
@@ -63,6 +57,6 @@ const PostsSection = ({ handleDeletePost }) => {
       </div>
     </div>
   );
-};
+}
 
-export default PostsSection;
+export default Posts;

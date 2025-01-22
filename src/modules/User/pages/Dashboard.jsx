@@ -1,29 +1,25 @@
 import React from "react";
-import SubscriptionUpdates from "../../Admin/components/Subscription"; // Importing SubscriptionUpdates component
+import { Routes, Route, Navigate } from "react-router-dom";
+import Navbar from "../components/NavBar";
+import Home from "../pages/Home";
+import Posts from "../pages/Posts";
 
 const UserDashboard = () => {
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col p-6">
-      <header className="flex justify-between items-center border-b pb-4 mb-6">
-        <h1 className="text-3xl font-semibold">Gym User Dashboard</h1>
-        <button className="bg-pink-600 px-4 py-2 rounded-lg">Logout</button>
-      </header>
+    <div className="flex flex-col md:flex-row min-h-screen">
+      {/* Sidebar */}
+      <Navbar />
 
-      <div className="grid grid-cols-1 gap-6">
-        {/* Gym Membership Section */}
-        <div className="bg-gray-800 p-4 rounded-lg shadow-lg">
-          <h2 className="text-xl font-semibold">Gym Membership</h2>
-          <p className="mt-2">View available membership plans</p>
-          <button className="mt-4 bg-blue-600 px-4 py-2 rounded-lg">
-            View Plans
-          </button>
-        </div>
+      {/* Main Content Area */}
+      <div className="flex-1 bg-black text-white p-6 md:ml-60"> {/* Added md:ml-60 for left margin on desktop */}
+        <Routes>
+          {/* Default Route */}
+          <Route path="/" element={<Navigate to="home" replace />} />
 
-        {/* Subscription Updates Section */}
-        <div className="bg-gray-800 p-4 rounded-lg shadow-lg">
-          <h2 className="text-xl font-semibold">Subscriptions Plans</h2>
-          <SubscriptionUpdates />
-        </div>
+          {/* Child Routes */}
+          <Route path="home" element={<Home />} />
+          <Route path="posts" element={<Posts />} />
+        </Routes>
       </div>
     </div>
   );

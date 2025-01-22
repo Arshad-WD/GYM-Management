@@ -110,7 +110,12 @@ export const fetchSubscriptions = async () => {
 export const addPost = async (post) => {
   try {
     const postsRef = collection(db, "posts");
-    const docRef = await addDoc(postsRef, post);
+
+    const newPost = {
+      ...post,
+      createdAt: new Date(),
+    };
+    const docRef = await addDoc(postsRef, newPost);
     console.log("Post added with ID: ", docRef.id);
     return docRef.id;
   } catch (error) {

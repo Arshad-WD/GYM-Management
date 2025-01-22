@@ -36,7 +36,7 @@ const AdminDashboard = () => {
             <li>
               <button
                 onClick={() => setActiveSection("home")}
-                className={`block px-4 py-3 rounded-md transition-colors duration-300 transform ${
+                className={`block px-4 pr-24 py-3 rounded-md transition-colors duration-300 transform ${
                   activeSection === "home" ? "bg-blue-700 text-white" : "hover:bg-blue-700 text-gray-300"
                 }`}
               >
@@ -46,7 +46,7 @@ const AdminDashboard = () => {
             <li>
               <button
                 onClick={() => setActiveSection("subscriptions")}
-                className={`block px-4 py-3 rounded-md transition-colors duration-300 transform ${
+                className={`block px-2 py-3 rounded-md transition-colors duration-300 transform ${
                   activeSection === "subscriptions" ? "bg-blue-700 text-white" : "hover:bg-blue-700 text-gray-300"
                 }`}
               >
@@ -56,7 +56,7 @@ const AdminDashboard = () => {
             <li>
               <button
                 onClick={() => setActiveSection("posts")}
-                className={`block px-4 py-3 rounded-md transition-colors duration-300 transform ${
+                className={`block pr-[4.6rem]  py-3 rounded-md transition-colors duration-300 transform ${
                   activeSection === "posts" ? "bg-blue-700 text-white" : "hover:bg-blue-700 text-gray-300"
                 }`}
               >

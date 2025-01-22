@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { fetchUsers, updateUserRole, fetchSubscriptions, deleteSubscription } from "../../../services/dbService"; // Importing functions
+import { fetchUsers, updateUserRole, fetchSubscriptions, deleteSubscription, deletePost } from "../../../services/dbService"; // Importing deletePost function
 
 // Components
 import Users from "./User";
 import Members from "./Member";
-import SubscriptionUpdates from "./Subscription"; 
+import SubscriptionUpdates from "./Subscription";
+import PostsSection from "./Post"; 
 
 const Home = () => {
   const [users, setUsers] = useState([]);
-  const [subscriptions, setSubscriptions] = useState([]); // State to store subscriptions
+  const [subscriptions, setSubscriptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [roleLoading, setRoleLoading] = useState(false);
 
   // Fetch Users and Subscriptions
   useEffect(() => {
@@ -19,7 +21,7 @@ const Home = () => {
         const usersData = await fetchUsers();
         const subscriptionsData = await fetchSubscriptions();
         setUsers(usersData);
-        setSubscriptions(subscriptionsData); // Set fetched subscriptions
+        setSubscriptions(subscriptionsData);
       } catch (err) {
         setError("Failed to load users or subscriptions.");
       } finally {
@@ -30,42 +32,45 @@ const Home = () => {
     getData();
   }, []);
 
-  // Handle Make Member button click
-  const handleMakeMember = async (userId) => {
+  // Handle updating user role (make member or remove member)
+  const handleUserRoleChange = async (userId, newRole) => {
     try {
-      await updateUserRole(userId, "member");
+      setRoleLoading(true);
+      await updateUserRole(userId, newRole);
       const updatedUsers = users.map((user) =>
-        user.id === userId ? { ...user, role: "member" } : user
+        user.id === userId ? { ...user, role: newRole } : user
       );
-      setUsers(updatedUsers); // Update user list
+      setUsers(updatedUsers);
     } catch (error) {
       console.error("Error updating user role:", error);
+      setError("Failed to update user role. Please try again.");
+    } finally {
+      setRoleLoading(false);
     }
   };
 
-  // Handle Remove Member button click (Make User)
-  const handleRemoveMember = async (userId) => {
-    try {
-      await updateUserRole(userId, "user");
-      const updatedUsers = users.map((user) =>
-        user.id === userId ? { ...user, role: "user" } : user
-      );
-      setUsers(updatedUsers); // Update user list
-    } catch (error) {
-      console.error("Error updating user role:", error);
-    }
-  };
-
-  // Handle Delete Subscription (Only in Home)
+  // Handle deleting a subscription
   const handleDeleteSubscription = async (subscriptionId) => {
     try {
-      await deleteSubscription(subscriptionId); // Call delete function from dbService
+      await deleteSubscription(subscriptionId);
       const updatedSubscriptions = subscriptions.filter(
         (subscription) => subscription.id !== subscriptionId
       );
-      setSubscriptions(updatedSubscriptions); // Update subscriptions after deletion
+      setSubscriptions(updatedSubscriptions);
     } catch (error) {
       console.error("Error deleting subscription:", error);
+      setError("Failed to delete subscription. Please try again.");
+    }
+  };
+
+  // Handle deleting a post (in Home)
+  const handleDeletePost = async (postId) => {
+    try {
+      await deletePost(postId); // Call deletePost function from dbService
+      console.log("Post deleted successfully");
+    } catch (error) {
+      console.error("Error deleting post:", error);
+      setError("Failed to delete post. Please try again.");
     }
   };
 
@@ -80,17 +85,19 @@ const Home = () => {
   return (
     <div className="space-y-6">
       {/* Members Section */}
-      <Members users={users} handleRemoveMember={handleRemoveMember} />
-      
-      {/* Users Section */}
-      <Users users={users} handleMakeMember={handleMakeMember} />
+      <Members users={users} handleRemoveMember={(userId) => handleUserRoleChange(userId, "user")} />
 
+      {/* Users Section */}
+      <Users users={users} handleMakeMember={(userId) => handleUserRoleChange(userId, "member")} />
 
       {/* Subscription Updates Section */}
       <SubscriptionUpdates
         subscriptions={subscriptions}
-        handleDeleteSubscription={handleDeleteSubscription} // Pass delete function only to Home
+        handleDeleteSubscription={handleDeleteSubscription}
       />
+
+      {/* Posts Section */}
+      <PostsSection handleDeletePost={handleDeletePost} />
 
       {/* Bottom Bar */}
       <div className="bg-gray-900 p-4 fixed bottom-0 left-0 w-full flex justify-between items-center shadow-lg">

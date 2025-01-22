@@ -1,6 +1,7 @@
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
-import { auth, db } from "./firebase"; // Ensure correct path for your Firebase configuration file
-import { doc, setDoc, getDoc } from "firebase/firestore"; // Firestore methods
+import { auth, db } from "./firebase"; 
+import { doc, setDoc, getDoc } from "firebase/firestore"; 
+import { collection, query, where, getDocs } from "firebase/firestore"; // Firestore methods
 
 /**
  * Login function with role-based validation and redirection.
@@ -11,21 +12,26 @@ import { doc, setDoc, getDoc } from "firebase/firestore"; // Firestore methods
 const login = async (email, password, role) => {
   try {
     // Sign in the user with email and password
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
+    //const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    //const user = userCredential.user;
 
-    // Fetch user data from Firestore
-    const userRef = doc(db, "users", user.uid);
-    const userDoc = await getDoc(userRef);
+    // Query Firestore to validate the role
+    const usersCollection = collection(db, "users");
+    const q = query(usersCollection, where("email", "==", email));
+    const querySnapshot = await getDocs(q);
 
-    if (!userDoc.exists()) {
+    if (querySnapshot.empty) {
       throw new Error("User record not found.");
     }
 
-    const userData = userDoc.data();
+    let userData = null;
+    querySnapshot.forEach((doc) => {
+      userData = { id: doc.id, ...doc.data() }; // Combine document ID and data
+    });
 
     // Validate the role of the user
     if (userData.role !== role) {
+      console.log(`Unauthorized role: Expected ${role}, found ${userData.role}`);
       throw new Error(`Unauthorized role: Expected ${role}, found ${userData.role}`);
     }
 
@@ -34,15 +40,16 @@ const login = async (email, password, role) => {
       admin: "/admin/dashboard",
       member: "/member/dashboard",
       user: "/user/dashboard",
-    }[role] || "/";  // Default to "/" if no matching role
+    }[role] || "/";
 
     window.location.href = redirectPath;
     console.log(`Login successful: Role=${role}, Redirecting to ${redirectPath}`);
   } catch (error) {
     console.error("Login error:", error.message);
-    throw error; // Re-throw error to handle it in UI
+    throw error; 
   }
 };
+
 
 /**
  * Register function to create a user with a specific role.
